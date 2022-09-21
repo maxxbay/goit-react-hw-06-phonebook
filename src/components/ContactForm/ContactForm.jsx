@@ -1,18 +1,35 @@
-import PropTypes from 'prop-types';
 import { useState } from 'react';
-import s from './ContactForm.module.css';
+import { Label, Title, Input, Button } from './ContactForm.styled';
+import { Report } from 'notiflix/build/notiflix-report-aio';
+import { nanoid } from 'nanoid';
+import { useSelector, useDispatch } from 'react-redux';
+import { addContact, getContacts } from 'redux/contacts-slice';
 
-function ContactForm({ onSubmit }) {
+function ContactForm({ onClose }) {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const onChangeName = e => setName(e.currentTarget.value);
-  const onChangeNunber = e => setNumber(e.currentTarget.value);
+  const onChangeName = event => setName(event.currentTarget.value);
+  const onChangeNumber = event => setNumber(event.currentTarget.value);
 
-  const onSubmitForm = e => {
-    e.preventDefault();
-    onSubmit({ name, number });
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
+
+  const onSubmitForm = event => {
+    event.preventDefault();
+
+    const newElement = { id: nanoid(), name, number };
+
+    contacts.some(contact => contact.name === name)
+      ? Report.warning(
+          `${name}`,
+          'This user is already in the contact list.',
+          'OK'
+        )
+      : dispatch(addContact(newElement));
+
     reset();
+    onClose();
   };
 
   const reset = () => {
@@ -22,10 +39,9 @@ function ContactForm({ onSubmit }) {
 
   return (
     <form onSubmit={onSubmitForm}>
-      <label className={s.label}>
-        <span className={s.title}>Name</span>
-        <input
-          className={s.input}
+      <Label>
+        <Title>Name</Title>
+        <Input
           onChange={onChangeName}
           type="text"
           name="name"
@@ -34,12 +50,11 @@ function ContactForm({ onSubmit }) {
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
         />
-      </label>
-      <label className={s.label}>
-        <span className={s.title}>Number</span>
-        <input
-          className={s.input}
-          onChange={onChangeNunber}
+      </Label>
+      <Label>
+        <Title>Number</Title>
+        <Input
+          onChange={onChangeNumber}
           type="tel"
           name="number"
           value={number}
@@ -47,16 +62,10 @@ function ContactForm({ onSubmit }) {
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
         />
-      </label>
-      <button className={s.button} type="submit">
-        Add contact
-      </button>
+      </Label>
+      <Button type="submit">Add contact</Button>
     </form>
   );
 }
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
 
 export default ContactForm;
