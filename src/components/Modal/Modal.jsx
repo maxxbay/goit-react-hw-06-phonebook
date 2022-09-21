@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AiOutlineClose } from 'react-icons/ai';
-import s from './Modal.module.css';
+import { Backdrop, ModalWrapper, Wrapper, Title, Button } from './Modal.styled';
 
 const modalRoot = document.querySelector('#modal-root');
 
-function Modal({ children, onClose, title }) {
+function Modal({ children, onClose }) {
   useEffect(() => {
     const onPessKeyDown = event => {
       if (event.code === 'Escape') {
@@ -26,17 +26,17 @@ function Modal({ children, onClose, title }) {
   };
 
   return createPortal(
-    <div className={s.backdrop} onClick={onBackdropClick}>
-      <div className={s.modal}>
-        <div className={s.wrapper}>
-          <h2 className={s.title}>{title}</h2>
-          <button className={s.button} type="button" onClick={onClose}>
+    <Backdrop onClick={onBackdropClick}>
+      <ModalWrapper>
+        <Wrapper>
+          <Title>Add contact</Title>
+          <Button type="button" onClick={onClose}>
             <AiOutlineClose />
-          </button>
-        </div>
+          </Button>
+        </Wrapper>
         {children}
-      </div>
-    </div>,
+      </ModalWrapper>
+    </Backdrop>,
     modalRoot
   );
 }
@@ -44,7 +44,6 @@ function Modal({ children, onClose, title }) {
 Modal.propTypes = {
   children: PropTypes.element,
   onClose: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
 };
 
 export default Modal;
